@@ -8,12 +8,11 @@ osascript -e 'quit app "Spotify"'
 # Set volume to max
 osascript -e 'set volume output volume 100'
 
-# Wait 2 seconds
+# Wait for dramatic effect
 sleep 2
 
-# Speak the line
-say "police steady watching me every day they clocking me"
+# Speak the message
+say "Police steady watching me. Every day they clockin me."
 
-# Shutdown the Mac
-sudo shutdown -h now
-
+# Silent system shutdown (no sudo)
+osascript -e 'tell application "System Events" to shut down'
