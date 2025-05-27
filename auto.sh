@@ -1,4 +1,4 @@
-#!/bin/bash
+x#!/bin/bash
 
 # Wallpaper URLs
 wallpapers=(
@@ -7,11 +7,10 @@ wallpapers=(
 "https://i1.sndcdn.com/avatars-zaCUjzWzmpQ5cqzn-4EqdxQ-t1080x1080.jpg"
 )
 
-# Force it to eventually hit 100 after 100 rolls
 cycle=0
 
 while true; do
-  # Force roll to reach 100 by cycle 100
+  # Force roll to 100 once we hit 100 cycles
   if [ "$cycle" -ge 100 ]; then
     roll=100
   else
@@ -19,20 +18,18 @@ while true; do
   fi
   ((cycle++))
 
-  # Set a wallpaper (random)
+  # Pick random wallpaper
   wp="${wallpapers[$RANDOM % ${#wallpapers[@]}]}"
-  curl -s -o /tmp/prank.jpg "$wp"
-  osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/tmp/prank.jpg"'
+  curl -s -o /tmp/wall.jpg "$wp"
+  osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/tmp/wall.jpg"'
 
-  # Calculate wait time: higher roll = shorter delay
-  # roll 1 → 3 sec | roll 100 → 0.1 sec
-  wait_time=$(awk -v r="$roll" 'BEGIN { print 3 - (r * 0.029) }')
+  # Faster rolls = faster flicker (100 = ~0.1s, 1 = 3s)
+  wait_time=$(awk -v r="$roll" 'BEGIN { printf "%.2f", 3 - (r * 0.029) }')
   sleep "$wait_time"
 
-  # If roll hits 100 — optional effect
+  # Optional: trigger something fun at 100 (but don't break loop)
   if [ "$roll" -eq 100 ]; then
-    osascript -e 'display dialog "GEORGE DROID SYSTEM INIATED" with title "KING VON IS ANGERED" buttons {"oh"} with icon caution'
-    break
+    osascript -e 'display dialog "KING VON HAS REINCARNATED INTO YOUR DISPLAY" with title "GEORGE DROID DEFENSE SYSTEM (GDDS):" buttons {"what?"} with icon note giving up after 3'
+    cycle=0 # restart the cycle
   fi
 done
-
