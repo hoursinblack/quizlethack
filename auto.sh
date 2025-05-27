@@ -1,4 +1,4 @@
-x#!/bin/bash
+#!/bin/bash
 
 # Wallpaper URLs
 wallpapers=(
@@ -10,7 +10,7 @@ wallpapers=(
 cycle=0
 
 while true; do
-  # Force roll to 100 once we hit 100 cycles
+  # Force roll to 100 after 100 loops
   if [ "$cycle" -ge 100 ]; then
     roll=100
   else
@@ -18,18 +18,23 @@ while true; do
   fi
   ((cycle++))
 
-  # Pick random wallpaper
+  # Download wallpaper to a persistent and valid path
   wp="${wallpapers[$RANDOM % ${#wallpapers[@]}]}"
-  curl -s -o /tmp/wall.jpg "$wp"
-  osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/tmp/wall.jpg"'
+  curl -s -o "$HOME/Downloads/prank_wall.jpg" "$wp"
 
-  # Faster rolls = faster flicker (100 = ~0.1s, 1 = 3s)
+  # Validate file actually downloaded
+  if [ -f "$HOME/Downloads/prank_wall.jpg" ]; then
+    osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "'"$HOME/Downloads/prank_wall.jpg"'"'
+  fi
+
+  # Speed logic: higher roll = faster change
   wait_time=$(awk -v r="$roll" 'BEGIN { printf "%.2f", 3 - (r * 0.029) }')
   sleep "$wait_time"
 
-  # Optional: trigger something fun at 100 (but don't break loop)
+  # On 100 roll — show popup, then keep going
   if [ "$roll" -eq 100 ]; then
-    osascript -e 'display dialog "KING VON HAS REINCARNATED INTO YOUR DISPLAY" with title "GEORGE DROID DEFENSE SYSTEM (GDDS):" buttons {"what?"} with icon note giving up after 3'
-    cycle=0 # restart the cycle
+    osascript -e 'display dialog "king von is here" with title "GEORGE DROID DEFENSE SYSTEM" buttons {"accept your fate"} with icon note giving up after 3'
+    cycle=0
   fi
 done
+
